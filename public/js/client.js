@@ -171,9 +171,9 @@ synthRBase.set('volume', -50);
 Interface.Slider({
     name: "LB Rate",
     parent: $("#leftphase"),
-    min: 0.1,
-    max: 2,
-    value: 0.5,
+    min: 0.01,
+    max: 0.7,
+    value: 0.1,
     drag: value => {
         updateLeftBasePLRate(value);
     }
@@ -182,7 +182,7 @@ Interface.Slider({
     name: "RB Rate",
     parent: $("#rightphase"),
     min: 0.1,
-    max: 2,
+    max: 1,
     value: 0.12,
     drag: value => {
         updateRightBasePLRate(value);
@@ -191,8 +191,8 @@ Interface.Slider({
 Interface.Slider({
     name: "LB Volume",
     parent: $("#leftphase"),
-    min: -50,
-    max: 20,
+    min: -40,
+    max: 30,
     value: 1,
     drag: value => {
         synthLBase.set('volume', value);
@@ -201,8 +201,8 @@ Interface.Slider({
 Interface.Slider({
     name: "RB Volume",
     parent: $("#rightphase"),
-    min: -50,
-    max: 20,
+    min: -40,
+    max: 30,
     value: 1,
     drag: function(value){
         synthRBase.set('volume', value);
@@ -245,7 +245,7 @@ const reverb = new Tone.Freeverb({
     "roomSize" : 0.5,
     "wet" : 0.4
 });
-merge.chain(reverb, Tone.Master);
+merge.chain(reverb, reverbC, Tone.Master);
 
 let synthSettingsL = {
     "oscillator": {
@@ -368,6 +368,9 @@ Interface.Button({
 
 
 
+
+
+
 /* ---  socket and control  --- */
 let GLOBAL_SPEED = 10;
 let GLOBAL_SPEED_SETTINGS = {
@@ -438,8 +441,8 @@ function updateOnSpeed() {
 
     if (GLOBAL_SPEED_SETTINGS.basePhase.shouldListenOnGlobal) {
         // 0.1 - 2
-        const basePhaseRate = GLOBAL_SPEED.map(0, 50, 0.2, 2);
-        updateLeftBasePLRate(basePhaseRate * 0.5);
+        const basePhaseRate = GLOBAL_SPEED.map(0, 50, 0.01, 0.5);
+        // updateLeftBasePLRate(basePhaseRate * 0.5);
         updateRightBasePLRate(basePhaseRate);
     }
 
@@ -455,11 +458,11 @@ let updateOnInterval; // = setInterval(updateOnSpeed, 3000);
 
 
 
-const hostlight = '172.16.80.163:8080';
+const hostlight = '206.189.162.188:8080';
 const socket= new WebSocket('ws://' + hostlight);
 socket.onopen = function() {
     console.log('hi on socket connect');
-    updateOnInterval = setInterval(updateOnSpeed, 5000);
+    updateOnInterval = setInterval(updateOnSpeed, 3000);
 };
 socket.onclose = () => {
     clearInterval(updateOnInterval);
