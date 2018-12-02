@@ -1,0 +1,12 @@
+{
+  "author": "",
+  "name": "serverstats",
+  "version": "0.0.0",
+  "repository": "websockets/ws",
+  "dependencies": {
+    "async": "^2.6.1",
+    "async-limiter": "^1.0.0",
+    "express": "^4.16.4",
+    "ws": "^6.1.2"
+  }
+}
