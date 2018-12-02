@@ -4,7 +4,8 @@ const scale = (num, in_min, in_max, out_min, out_max) => {
 Number.prototype.map = function (in_min, in_max, out_min, out_max) {
   return (this - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 };
-let GLOBAL_SPEED = 10;
+
+
 
 
 let oscillators = [];
@@ -165,7 +166,8 @@ const updateRightBasePLRate = value => {
     document.querySelector('#rightphase p').textContent = 'R Piano rate: ' + rRate;
 };
 /* --- --- update --- --- */
-
+synthLBase.set('volume', -50);
+synthRBase.set('volume', -50);
 Interface.Slider({
     name: "LB Rate",
     parent: $("#leftphase"),
@@ -364,25 +366,87 @@ Interface.Button({
 
 
 
+
+
+/* ---  socket and control  --- */
+let GLOBAL_SPEED = 10;
+let GLOBAL_SPEED_SETTINGS = {
+    baseOsc: {
+        shouldListenOnGlobal: false,
+        speed: GLOBAL_SPEED
+    },
+    basePhase: {
+        shouldListenOnGlobal: false,
+        speed: GLOBAL_SPEED
+    },
+    pianoPhase: {
+        shouldListenOnGlobal: false,
+        speed: GLOBAL_SPEED
+    }
+};
+Interface.Button({
+    parent: $('#baseOsc'),
+    key: 32,
+    type: "toggle",
+    text: "Listen to Socket Data",
+    activeText : "Stop and use Slider",
+    start: () => {
+        GLOBAL_SPEED_SETTINGS.baseOsc.shouldListenOnGlobal = true;
+    },
+    end: () => {
+        GLOBAL_SPEED_SETTINGS.baseOsc.shouldListenOnGlobal = false;
+    }
+});
+Interface.Button({
+    parent: $('#basePhase'),
+    key: 32,
+    type: "toggle",
+    text: "Listen to Socket Data",
+    activeText : "Stop and use Slider",
+    start: () => {
+        GLOBAL_SPEED_SETTINGS.basePhase.shouldListenOnGlobal = true;
+    },
+    end: () => {
+        GLOBAL_SPEED_SETTINGS.basePhase.shouldListenOnGlobal = false;
+    }
+});
+Interface.Button({
+    parent: $('#pianophase'),
+    key: 32,
+    type: "toggle",
+    text: "Listen to Socket Data",
+    activeText : "Stop and use Slider",
+    start: () => {
+        GLOBAL_SPEED_SETTINGS.pianoPhase.shouldListenOnGlobal = true;
+    },
+    end: () => {
+        GLOBAL_SPEED_SETTINGS.pianoPhase.shouldListenOnGlobal = false;
+    }
+});
 function updateOnSpeed() {
     console.log('on update');
     // 0.1 - 1
     if (GLOBAL_SPEED <= 0) {
         return;
-    } else {
-      const baseFre = GLOBAL_SPEED.map(0, 50, 0.1, 1);
-      console.log('global', GLOBAL_SPEED, baseFre);
+    }
 
-      updateBaseOscFre(baseFre);
+    if (GLOBAL_SPEED_SETTINGS.baseOsc.shouldListenOnGlobal) {
+        const baseFre = GLOBAL_SPEED.map(0, 50, 0.2, 1);
+        console.log('global', GLOBAL_SPEED, baseFre);
+        updateBaseOscFre(baseFre);
+    }
 
-      // 0.1 - 2
-      const basePhaseRate = GLOBAL_SPEED.map(0, 50, 0.1, 2);
-      updateLeftBasePLRate(basePhaseRate * 0.1);
-      updateRightBasePLRate(basePhaseRate);
+    if (GLOBAL_SPEED_SETTINGS.basePhase.shouldListenOnGlobal) {
+        // 0.1 - 2
+        const basePhaseRate = GLOBAL_SPEED.map(0, 50, 0.2, 2);
+        updateLeftBasePLRate(basePhaseRate * 0.5);
+        updateRightBasePLRate(basePhaseRate);
+    }
 
-      const basePianoRate = GLOBAL_SPEED.map(0, 50, 0.1, 2);
-      updateLeftPianoPLRate(basePianoRate * 0.1);
-      updateRightPianoPLRate(basePianoRate);
+    if (GLOBAL_SPEED_SETTINGS.pianoPhase.shouldListenOnGlobal) {
+        const basePianoRate = GLOBAL_SPEED.map(0, 50, 0.2, 2);
+        updateLeftPianoPLRate(basePianoRate * 0.5);
+        updateRightPianoPLRate(basePianoRate);
     }
 };
 
@@ -391,11 +455,11 @@ let updateOnInterval; // = setInterval(updateOnSpeed, 3000);
 
 
 
-const hostlight = '206.189.162.188:8080';
+const hostlight = '172.16.80.163:8080';
 const socket= new WebSocket('ws://' + hostlight);
 socket.onopen = function() {
     console.log('hi on socket connect');
-    updateOnInterval = setInterval(updateOnSpeed, 3000);
+    updateOnInterval = setInterval(updateOnSpeed, 5000);
 };
 socket.onclose = () => {
     clearInterval(updateOnInterval);
