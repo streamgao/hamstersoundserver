@@ -1,3 +1,12 @@
+const scale = (num, in_min, in_max, out_min, out_max) => {
+  return (num - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+};
+Number.prototype.map = function (in_min, in_max, out_min, out_max) {
+  return (this - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+};
+let GLOBAL_SPEED = 10;
+
+
 let oscillators = [];
 let bassFreq = 32;
 for (let i = 0; i < 8; i++){
@@ -251,7 +260,7 @@ let synthSettingsL = {
         "release": 1,
     },
     "portamento": 0.5,
-    "volume": -50
+    "volume": 10
 };
 let synthSettingsR = {
     "oscillator": {
@@ -268,7 +277,7 @@ let synthSettingsR = {
         "release": 1,
     },
     "portamento": 0.01,
-    "volume": -50
+    "volume": 10
 };
 
 // left and right synthesizers
@@ -356,35 +365,33 @@ Interface.Button({
 
 
 function updateOnSpeed() {
+    console.log('on update');
     // 0.1 - 1
-    const baseFre = GLOBAL_SPEED.map(0, 50, 0.1, 1);
-    console.log('global', GLOBAL_SPEED, baseFre);
+    if (GLOBAL_SPEED <= 0) {
+        return;
+    } else {
+      const baseFre = GLOBAL_SPEED.map(0, 50, 0.1, 1);
+      console.log('global', GLOBAL_SPEED, baseFre);
 
-    updateBaseOscFre(baseFre);
+      updateBaseOscFre(baseFre);
 
-    // 0.1 - 2
-    const basePhaseRate = GLOBAL_SPEED.map(0, 50, 0.1, 2);
-    updateLeftBasePLRate(basePhaseRate * 0.1);
-    updateRightBasePLRate(basePhaseRate);
+      // 0.1 - 2
+      const basePhaseRate = GLOBAL_SPEED.map(0, 50, 0.1, 2);
+      updateLeftBasePLRate(basePhaseRate * 0.1);
+      updateRightBasePLRate(basePhaseRate);
 
-    const basePianoRate = GLOBAL_SPEED.map(0, 50, 0.1, 2);
-    updateLeftPianoPLRate(basePianoRate * 0.1);
-    updateRightPianoPLRate(basePianoRate);
+      const basePianoRate = GLOBAL_SPEED.map(0, 50, 0.1, 2);
+      updateLeftPianoPLRate(basePianoRate * 0.1);
+      updateRightPianoPLRate(basePianoRate);
+    }
 };
 
-let updateOnInterval = setInterval(updateOnSpeed, 3000);
+let updateOnInterval; // = setInterval(updateOnSpeed, 3000);
 
 
-const scale = (num, in_min, in_max, out_min, out_max) => {
-  return (num - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-};
-Number.prototype.map = function (in_min, in_max, out_min, out_max) {
-  return (this - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-};
-let GLOBAL_SPEED = 0;
 
 
-const hostlight = '172.16.80.130:8080';
+const hostlight = '206.189.162.188:8080';
 const socket= new WebSocket('ws://' + hostlight);
 socket.onopen = function() {
     console.log('hi on socket connect');
@@ -420,4 +427,3 @@ socket.onmessage = evt => {
         console.log('..something wrong here..', evt.data, e);
     }
 };
-
