@@ -77,7 +77,8 @@ Interface.Button({
 
 
 
-var player = new Tone.Player("../click.m4a").toMaster();
+// var player = new Tone.Player("../click.m4a").toMaster();
+// player.autostart = true;
 
 
 
@@ -141,7 +142,7 @@ let duosetting = {
 };
 
 // left and right synthesizers
-const synthLBase = new Tone.FMSynth().connect(mergeBasePhase.left);
+const synthLBase = new Tone.PluckSynth().connect(mergeBasePhase.left);
 const synthRBase = new Tone.DuoSynth(duosetting).connect(mergeBasePhase.right);
 
 // the two Tone.Sequences
@@ -169,8 +170,8 @@ const updateRightBasePLRate = value => {
     document.querySelector('#rightphase p').textContent = 'R Piano rate: ' + rRate;
 };
 /* --- --- update --- --- */
-synthLBase.set('volume', -50);
-synthRBase.set('volume', -50);
+synthLBase.set('volume', -100);
+synthRBase.set('volume', -100);
 Interface.Slider({
     name: "LB Rate",
     parent: $("#leftphase"),
@@ -194,9 +195,9 @@ Interface.Slider({
 Interface.Slider({
     name: "LB Volume",
     parent: $("#leftphase"),
-    min: -40,
-    max: 30,
-    value: 1,
+    min: -60,
+    max: 10,
+    value: -60,
     drag: value => {
         synthLBase.set('volume', value);
     }
@@ -204,9 +205,9 @@ Interface.Slider({
 Interface.Slider({
     name: "RB Volume",
     parent: $("#rightphase"),
-    min: -40,
-    max: 30,
-    value: 1,
+    min: -60,
+    max: 10,
+    value: -60,
     drag: function(value){
         synthRBase.set('volume', value);
     }
@@ -218,12 +219,10 @@ Interface.Button({
     text: "Unmute Base Phase",
     activeText : "Mute Base Phase",
     start: () => {
-        // Tone.Transport.start("+0.1");
-        synthLBase.set('volume', 10);
-        synthRBase.set('volume', 10);
+        synthLBase.set('volume', -30);
+        synthRBase.set('volume', -30);
     },
     end: () => {
-        // Tone.Transport.stop();
         synthLBase.set('volume', -100);
         synthRBase.set('volume', -100);
     }
