@@ -77,6 +77,9 @@ Interface.Button({
 
 
 
+var player = new Tone.Player("../click.m4a").toMaster();
+
+
 
 /* --------------- Base Phase ------------------- */
 // set the bpm and time signature first
@@ -91,7 +94,7 @@ const reverbBasePhase = new Tone.Freeverb({
     "wet" : 0.7
 });
 var delay = new Tone.FeedbackDelay({ delayTime: '4t', feedback: 0.5, wet: 0.5 });
-var reverbC = new Tone.Convolver({ url: 'doubleclick.mp3', wet: 0.75 });
+var reverbC = new Tone.Convolver({ url: '../doubleclick.mp3', wet: 0.75 });
 var limiter = new Tone.Limiter();
 var panner = new Tone.Panner(0.5);
 mergeBasePhase.chain(delay, reverbBasePhase, reverbC, limiter, panner, Tone.Master);
@@ -225,10 +228,6 @@ Interface.Button({
         synthRBase.set('volume', -100);
     }
 });
-
-
-
-
 
 
 
