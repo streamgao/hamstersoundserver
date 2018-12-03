@@ -14,11 +14,10 @@ wss.on('connection', function(ws) {
     // Here we can now use session parameters.
 
    // ws.send(message);
-
+     const value = message.toString();
      wss.clients.forEach(function each(client) {
     //  if (client !== ws && client.readyState === WebSocket.OPEN) {
-        client.send(message.toString());
-        console.log(message, message.toString());
+        client.send(value);
      // }
     });
     //

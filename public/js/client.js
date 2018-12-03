@@ -46,7 +46,7 @@ Interface.Slider({
     parent : $("#baseOsc"),
     min: -60,
     max: 20,
-    value: 0,
+    value: -30,
     drag: value => {
         oscillators.forEach(osc => {
             osc.volume.rampTo(value, 0);
@@ -74,11 +74,6 @@ Interface.Button({
 
 
 
-
-
-
-// var player = new Tone.Player("../click.m4a").toMaster();
-// player.autostart = true;
 
 
 
@@ -140,19 +135,37 @@ let duosetting = {
         }
     }
 };
-
+let synthSettingsRBASE = {
+    "oscillator": {
+        "detune": 0,
+        "type": "custom",
+        "partials" : [2, 1, 2, 2],
+        "phase": 0,
+        "volume": 40
+    },
+    "envelope": {
+        "attack": 0.1,
+        "decay": 0.8,
+        "sustain": 15,
+        "release": 1,
+    },
+    "portamento": 0.5,
+    "volume": 10
+};
 // left and right synthesizers
 const synthLBase = new Tone.PluckSynth().connect(mergeBasePhase.left);
-const synthRBase = new Tone.DuoSynth(duosetting).connect(mergeBasePhase.right);
+//const synthRBase = new Tone.DuoSynth(duosetting).connect(mergeBasePhase.right);
+const synthRBase = new Tone.PolySynth(synthSettingsRBASE).connect(mergeBasePhase.right);
+
 
 // the two Tone.Sequences
 const partLBase = new Tone.Sequence((time, note) => {
     synthLBase.triggerAttackRelease(note, '8n', time.toFixed(2), 0.5);
-}, ["E4", "F#4", "B4", "C#5"], "8n").start();
+}, ["E4", "F#4", "B4", "C#5", "D5", "F#4", "E4", "C#5", "B4", "F#4", "D5", "C#5"], "8n").start();
 
 const partRBase = new Tone.Sequence((time, note) => {
     synthRBase.triggerAttackRelease(note, "8n", time.toFixed(2));
-}, ["C5"], "8n").start('1m');
+}, ["E4", "F#4", "B4", "C#5", "D5", "F#4", "E4", "C#5", "B4", "F#4", "D5", "C#5"], "8n").start('1m');
 
 // const partRBase = new Tone.Sequence((time, note) => {
 //     polySynth2.triggerAttackRelease(note, "8n", time.toFixed(2));
@@ -195,9 +208,9 @@ Interface.Slider({
 Interface.Slider({
     name: "LB Volume",
     parent: $("#leftphase"),
-    min: -60,
-    max: 10,
-    value: -60,
+    min: -50,
+    max: 20,
+    value: -50,
     drag: value => {
         synthLBase.set('volume', value);
     }
@@ -227,6 +240,8 @@ Interface.Button({
         synthRBase.set('volume', -100);
     }
 });
+
+
 
 
 
@@ -432,20 +447,24 @@ function updateOnSpeed() {
     }
 
     if (GLOBAL_SPEED_SETTINGS.baseOsc.shouldListenOnGlobal) {
-        const baseFre = GLOBAL_SPEED.map(0, 50, 0.2, 1);
-        console.log('global', GLOBAL_SPEED, baseFre);
+        const baseFre = GLOBAL_SPEED.map(0, 100, 0.2, 1);
         updateBaseOscFre(baseFre);
     }
 
-    if (GLOBAL_SPEED_SETTINGS.basePhase.shouldListenOnGlobal) {
-        // 0.1 - 2
-        const basePhaseRate = GLOBAL_SPEED.map(0, 50, 0.01, 0.5);
-        // updateLeftBasePLRate(basePhaseRate * 0.5);
-        updateRightBasePLRate(basePhaseRate);
-    }
+    // if (GLOBAL_SPEED_SETTINGS.basePhase.shouldListenOnGlobal) {
+    //     // 0.1 - 2
+    //     const basePhaseRate = GLOBAL_SPEED.map(0, 50, 0.01, 0.5);
+    //     // updateLeftBasePLRate(basePhaseRate * 0.5);
+    //     updateRightBasePLRate(basePhaseRate);
+    // }
 
     if (GLOBAL_SPEED_SETTINGS.pianoPhase.shouldListenOnGlobal) {
-        const basePianoRate = GLOBAL_SPEED.map(0, 50, 0.2, 2);
+        let basePianoRate = GLOBAL_SPEED.map(0, 100, 0.1, 4);
+        // console.log('.basePianoRate.', basePianoRate, scale());
+        console.log( GLOBAL_SPEED, 'global', basePianoRate);
+        if (basePianoRate >= 5) {
+            basePianoRate = 5;
+        }
         updateLeftPianoPLRate(basePianoRate * 0.5);
         updateRightPianoPLRate(basePianoRate);
     }
